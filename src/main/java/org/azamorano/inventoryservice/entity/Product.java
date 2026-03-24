@@ -1,54 +1,72 @@
 package org.azamorano.inventoryservice.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(name = "products")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Product {
 
     @Id
-    @GeneratedValue
-    UUID id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
     @Column(unique = true, nullable = false)
     private String sku;
 
-    String barCode;
+    @Column(nullable = false)
+    private String barCode;
 
-    String productName;
+    @Column(nullable = false)
+    private String productName;
 
-    String productDescription;
+    @Column(columnDefinition = "TEXT")
+    private String productDescription;
 
     @Enumerated(EnumType.STRING)
-    ProductCategory category;
+    @Column(nullable = false)
+    private ProductCategory category;
 
-    @OneToMany
-    ProductPresentation productPresentation;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductPresentation> productPresentations;
 
+    @Column(nullable = false)
     private boolean prescriptionRequired;
 
+    @Column(nullable = false)
     private boolean controlledSubstance;
 
     @ManyToOne
+    @JoinColumn(name = "laboratory_id")
     private Laboratory laboratory;
 
-    @OneToMany
-    List<InventoryBatch> inventoryBatches;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InventoryBatch> inventoryBatches;
 
-    List<Price> prices;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Price> prices;
 
-    @OneToMany
-    List<TherapeuticAction> therapeuticActions;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TherapeuticAction> therapeuticActions;
 
-    @OneToMany
-    List<ActiveIngredient> activeIngredients;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ActiveIngredient> activeIngredients;
 
     @ManyToOne
-    Brand brand;
+    @JoinColumn(name = "brand_id")
+    private Brand brand;
 
-    String sanitaryRegistration;
+    @Column(unique = true)
+    private String sanitaryRegistration;
 
-    int reoderLevel;
+    @Column(nullable = false)
+    private int reorderLevel;
 }

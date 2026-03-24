@@ -1,15 +1,26 @@
 package org.azamorano.inventoryservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+import java.math.BigDecimal;
+import java.util.UUID;
+
 @Entity
-@Table
+@Table(name = "prices")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Price {
-
-    //TODO [Reverse Engineering] generate columns from DB
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+    
+    @Column(nullable = false, precision = 15, scale = 2)
+    private BigDecimal amount;
+    
+    private String currency;
 }

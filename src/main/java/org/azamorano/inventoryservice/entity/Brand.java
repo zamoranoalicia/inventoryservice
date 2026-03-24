@@ -1,18 +1,23 @@
 package org.azamorano.inventoryservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+import java.util.UUID;
+
 @Entity
-@Table
+@Table(name = "brands")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Brand {
-
-    String brandId;
-
-    String manufactorerId;
-    //TODO [Reverse Engineering] generate columns from DB
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+    
+    @Column(nullable = false)
+    private String name;
 }

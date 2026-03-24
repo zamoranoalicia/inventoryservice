@@ -1,21 +1,26 @@
 package org.azamorano.inventoryservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
-@Getter
-@Setter
 @Entity
-@Table
+@Table(name = "date_alerts")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class DateAlert {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
+    
+    @Column(nullable = false)
+    private ZonedDateTime expirationDate;
 
-    ZonedDateTime expirationDate;
-
-    ZonedDateTime alertDate;
-
-    //TODO [Reverse Engineering] generate columns from DB
+    private ZonedDateTime alertDate;
 }
