@@ -5,7 +5,6 @@ A professional Spring Boot REST API service for managing pharmaceutical products
 ## Table of Contents
 
 - [Technologies](#technologies)
-- [Features](#features)
 - [Quick Start](#quick-start)
 - [Database Configuration](#database-configuration)
 - [Running the Application](#running-the-application)
@@ -13,7 +12,6 @@ A professional Spring Boot REST API service for managing pharmaceutical products
 - [API Example](#api-example)
 - [Swagger Documentation](#swagger-documentation)
 - [Running Tests](#running-tests)
-- [Architecture](#architecture)
 
 ## Technologies
 
@@ -30,18 +28,6 @@ A professional Spring Boot REST API service for managing pharmaceutical products
 - **Testing:** JUnit 5 + Mockito
 - **Logging:** SLF4J
 
-## Features
-
-- ✅ Complete CRUD operations for 12 pharmaceutical entities
-- ✅ 72 REST API endpoints
-- ✅ Request/Response DTO pattern with validation
-- ✅ Layered architecture (Controllers → Mappers → Services → Repositories → Database)
-- ✅ PostgreSQL with automatic schema creation
-- ✅ Flyway database migrations for version control
-- ✅ H2 in-memory database for testing
-- ✅ Comprehensive Swagger/OpenAPI documentation
-- ✅ Full test coverage (55 tests passing)
-- ✅ SOLID principles and professional code standards
 
 ## Quick Start
 
