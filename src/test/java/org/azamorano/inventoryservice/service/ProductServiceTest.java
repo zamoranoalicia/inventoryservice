@@ -24,7 +24,12 @@ class ProductServiceTest {
     @Mock
     private ProductRepository productRepository;
 
-    @InjectMocks
+    @Mock
+    private BrandService brandService;
+
+    @Mock
+    private LaboratoryService laboratoryService;
+
     private ProductService productService;
 
     private Product testProduct;
@@ -32,6 +37,7 @@ class ProductServiceTest {
 
     @BeforeEach
     void setUp() {
+        productService = new ProductService(productRepository, brandService, laboratoryService);
         testId = UUID.randomUUID();
         testProduct = new Product();
         testProduct.setId(testId);

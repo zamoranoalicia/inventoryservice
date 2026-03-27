@@ -29,15 +29,19 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.postgresql:postgresql:42.7.1'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+    implementation 'org.flywaydb:flyway-core:9.22.3'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     annotationProcessor 'org.projectlombok:lombok'
     
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc'
     testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
     testImplementation 'org.springframework:spring-test'
+    testImplementation 'org.springframework:spring-webmvc'
     testImplementation 'com.fasterxml.jackson.core:jackson-databind'
     testImplementation 'com.h2database:h2'
+    testImplementation 'org.flywaydb:flyway-core:9.22.3'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

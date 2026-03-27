@@ -1,38 +1,48 @@
 package org.azamorano.inventoryservice.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table
+@Table(name = "inventory_batches")
 public class InventoryBatch {
 
     @Id
-    @GeneratedValue
-    UUID id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "product_id")
     private Product product;
 
     @ManyToOne
-    ProductSupplier supplier;
+    @JoinColumn(name = "supplier_id")
+    private ProductSupplier supplier;
 
-    String lotNumber;
+    @Column(name = "lot_number")
+    private String lotNumber;
 
-    ZonedDateTime receptionDate;
+    @Column(name = "reception_date")
+    private ZonedDateTime receptionDate;
 
-    ZonedDateTime expirationDate;
+    @Column(name = "expiration_date")
+    private ZonedDateTime expirationDate;
 
-    Integer quantity;
+    @Column(name = "quantity")
+    private Integer quantity;
 
-    int alertBeforeDays;
+    @Column(name = "alert_before_days")
+    private Integer alertBeforeDays;
 
-    BigDecimal purchasePrice;
+    @Column(name = "purchase_price", precision = 15, scale = 2)
+    private BigDecimal purchasePrice;
 }

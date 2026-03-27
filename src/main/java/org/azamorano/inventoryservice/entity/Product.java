@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -35,9 +34,6 @@ public class Product {
     @Column(nullable = false)
     private ProductCategory category;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductPresentation> productPresentations;
-
     @Column(nullable = false)
     private boolean prescriptionRequired;
 
@@ -48,17 +44,6 @@ public class Product {
     @JoinColumn(name = "laboratory_id")
     private Laboratory laboratory;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<InventoryBatch> inventoryBatches;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Price> prices;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TherapeuticAction> therapeuticActions;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ActiveIngredient> activeIngredients;
 
     @ManyToOne
     @JoinColumn(name = "brand_id")

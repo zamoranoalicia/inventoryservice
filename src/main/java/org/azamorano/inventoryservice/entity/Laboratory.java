@@ -22,4 +22,9 @@ public class Laboratory {
     private String name;
     
     private String country;
+
+    public Laboratory(String name, String country) {
+        this.name = name;
+        this.country = country;
+    }
 }

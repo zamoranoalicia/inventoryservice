@@ -1,28 +1,38 @@
 package org.azamorano.inventoryservice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Entity
+@Table(name = "product_suppliers")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductSupplier {
 
     @Id
-    @GeneratedValue
-    UUID id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
-    String name;
+    @Column(nullable = false)
+    private String name;
 
-    String taxId;
+    @Column(name = "tax_id")
+    private String taxId;
 
-    String address;
+    @Column
+    private String address;
 
-    String phone;
+    @Column
+    private String phone;
 
-    String email;
+    @Column
+    private String email;
 
-    String sanitaryAuthorizationNumber;
-
+    @Column(name = "sanitary_authorization_number")
+    private String sanitaryAuthorizationNumber;
 }

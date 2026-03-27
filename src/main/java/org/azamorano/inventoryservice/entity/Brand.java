@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+
 @Entity
 @Table(name = "brands")
 @Data
@@ -20,4 +21,8 @@ public class Brand {
     
     @Column(nullable = false)
     private String name;
+
+    public Brand(String name) {
+        this.name = name;
+    }
 }

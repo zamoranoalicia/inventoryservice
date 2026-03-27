@@ -1,6 +1,8 @@
 package org.azamorano.inventoryservice.service;
 
+import org.azamorano.inventoryservice.entity.Brand;
 import org.azamorano.inventoryservice.entity.Product;
+import org.azamorano.inventoryservice.repository.BrandRepository;
 import org.azamorano.inventoryservice.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,18 +11,34 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.Optional.ofNullable;
+
 @Service
 @Transactional
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final BrandService brandService;
+    private final LaboratoryService laboratoryService;
 
-    public ProductService(ProductRepository productRepository) {
+
+    public ProductService(ProductRepository productRepository, BrandService brandService, LaboratoryService laboratoryService) {
         this.productRepository = productRepository;
+        this.brandService = brandService;
+        this.laboratoryService = laboratoryService;
     }
 
     public Product create(Product product) {
         validateProduct(product);
+        
+        // Brand and Laboratory are optional
+        if (product.getBrand() != null) {
+            product.setBrand(brandService.saveBrand(product.getBrand()));
+        }
+        if (product.getLaboratory() != null) {
+            product.setLaboratory(laboratoryService.saveLaboratory(product.getLaboratory()));
+        }
+        
         return productRepository.save(product);
     }
 

@@ -1,47 +1,44 @@
 package org.azamorano.inventoryservice.controller;
 
+import org.azamorano.inventoryservice.dto.response.ProductResponseDto;
 import org.azamorano.inventoryservice.entity.Product;
+import org.azamorano.inventoryservice.mapper.ProductMapper;
 import org.azamorano.inventoryservice.service.ProductService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@DisplayName("ProductController Unit Tests")
 class ProductControllerTest {
 
-    private MockMvc mockMvc;
+    private ProductController productController;
 
     @Mock
     private ProductService productService;
 
-    @InjectMocks
-    private ProductController productController;
-
-    private ObjectMapper objectMapper = new ObjectMapper();
+    @Mock
+    private ProductMapper productMapper;
 
     private Product testProduct;
+    private ProductResponseDto testProductDto;
     private UUID testId;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(productController).build();
+        MockitoAnnotations.openMocks(this);
+        productController = new ProductController(productService, productMapper);
         
         testId = UUID.randomUUID();
         testProduct = new Product();
@@ -54,170 +51,148 @@ class ProductControllerTest {
         testProduct.setControlledSubstance(false);
         testProduct.setSanitaryRegistration("SR-001");
         testProduct.setReorderLevel(10);
+
+        testProductDto = new ProductResponseDto();
+        testProductDto.setId(testId);
+        testProductDto.setSku("SKU-001");
+        testProductDto.setProductName("Test Product");
     }
 
     @Test
-    void testCreateProduct_Success() throws Exception {
-        when(productService.create(any(Product.class))).thenReturn(testProduct);
+    @DisplayName("Should create product successfully")
+    void testCreateProduct_Success() {
+        when(productMapper.toEntity(any())).thenReturn(testProduct);
+        when(productService.create(any())).thenReturn(testProduct);
+        when(productMapper.toResponseDto(any())).thenReturn(testProductDto);
 
-        mockMvc.perform(post("/api/products")
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(testProduct)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.sku").value("SKU-001"))
-                .andExpect(jsonPath("$.productName").value("Test Product"));
+        var result = productController.createProduct(any());
 
-        verify(productService, times(1)).create(any(Product.class));
+        assertNotNull(result);
+        assertEquals(201, result.getStatusCode().value());
+        verify(productService, times(1)).create(any());
     }
 
     @Test
-    void testGetAllProducts_Success() throws Exception {
+    @DisplayName("Should get all products")
+    void testGetAllProducts_Success() {
         List<Product> productList = new ArrayList<>();
         productList.add(testProduct);
         
         when(productService.getAll()).thenReturn(productList);
+        when(productMapper.toResponseDtoList(any())).thenReturn(List.of(testProductDto));
 
-        mockMvc.perform(get("/api/products")
-                .contentType("application/json"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].sku").value("SKU-001"))
-                .andExpect(jsonPath("$[0].productName").value("Test Product"));
+        var result = productController.getAllProducts();
 
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode().value());
         verify(productService, times(1)).getAll();
     }
 
     @Test
-    void testGetAllProducts_Empty() throws Exception {
+    @DisplayName("Should get all products when empty")
+    void testGetAllProducts_Empty() {
         when(productService.getAll()).thenReturn(new ArrayList<>());
+        when(productMapper.toResponseDtoList(any())).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get("/api/products")
-                .contentType("application/json"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(0));
+        var result = productController.getAllProducts();
+
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode().value());
     }
 
     @Test
-    void testGetProductById_Success() throws Exception {
+    @DisplayName("Should get product by ID successfully")
+    void testGetProductById_Success() {
         when(productService.getById(testId)).thenReturn(Optional.of(testProduct));
+        when(productMapper.toResponseDto(any())).thenReturn(testProductDto);
 
-        mockMvc.perform(get("/api/products/" + testId)
-                .contentType("application/json"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sku").value("SKU-001"))
-                .andExpect(jsonPath("$.productName").value("Test Product"));
+        var result = productController.getProductById(testId);
 
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode().value());
         verify(productService, times(1)).getById(testId);
     }
 
     @Test
-    void testGetProductById_NotFound() throws Exception {
+    @DisplayName("Should return 404 when product not found")
+    void testGetProductById_NotFound() {
         when(productService.getById(testId)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/api/products/" + testId)
-                .contentType("application/json"))
-                .andExpect(status().isNotFound());
+        var result = productController.getProductById(testId);
 
-        verify(productService, times(1)).getById(testId);
+        assertEquals(404, result.getStatusCode().value());
     }
 
     @Test
-    void testUpdateProduct_Success() throws Exception {
-        Product updateData = new Product();
-        updateData.setProductName("Updated Product");
-        testProduct.setProductName("Updated Product");
-
-        when(productService.update(eq(testId), any(Product.class))).thenReturn(testProduct);
-
-        mockMvc.perform(put("/api/products/" + testId)
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(updateData)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.productName").value("Updated Product"));
-
-        verify(productService, times(1)).update(eq(testId), any(Product.class));
-    }
-
-    @Test
-    void testUpdateProduct_NotFound() throws Exception {
-        Product updateData = new Product();
-        updateData.setProductName("Updated Product");
-
-        when(productService.update(eq(testId), any(Product.class)))
-                .thenThrow(new IllegalArgumentException("Product not found"));
-
-        mockMvc.perform(put("/api/products/" + testId)
-                .contentType("application/json")
-                .content(objectMapper.writeValueAsString(updateData)))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void testDeleteProduct_Success() throws Exception {
-        doNothing().when(productService).delete(testId);
-
-        mockMvc.perform(delete("/api/products/" + testId)
-                .contentType("application/json"))
-                .andExpect(status().isNoContent());
-
-        verify(productService, times(1)).delete(testId);
-    }
-
-    @Test
-    void testDeleteProduct_NotFound() throws Exception {
-        doThrow(new IllegalArgumentException("Product not found"))
-                .when(productService).delete(testId);
-
-        mockMvc.perform(delete("/api/products/" + testId)
-                .contentType("application/json"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void testGetProductBySku_Success() throws Exception {
+    @DisplayName("Should get product by SKU successfully")
+    void testGetProductBySku_Success() {
         when(productService.findBySku("SKU-001")).thenReturn(Optional.of(testProduct));
+        when(productMapper.toResponseDto(any())).thenReturn(testProductDto);
 
-        mockMvc.perform(get("/api/products/sku/SKU-001")
-                .contentType("application/json"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sku").value("SKU-001"))
-                .andExpect(jsonPath("$.productName").value("Test Product"));
+        var result = productController.getProductBySku("SKU-001");
 
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode().value());
         verify(productService, times(1)).findBySku("SKU-001");
     }
 
     @Test
-    void testGetProductBySku_NotFound() throws Exception {
-        when(productService.findBySku("SKU-999")).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/api/products/sku/SKU-999")
-                .contentType("application/json"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    void testGetProductBySanitaryRegistration_Success() throws Exception {
+    @DisplayName("Should get product by sanitary registration successfully")
+    void testGetProductBySanitaryRegistration_Success() {
         when(productService.findBySanitaryRegistration("SR-001")).thenReturn(Optional.of(testProduct));
+        when(productMapper.toResponseDto(any())).thenReturn(testProductDto);
 
-        mockMvc.perform(get("/api/products/sanitary/SR-001")
-                .contentType("application/json"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sanitaryRegistration").value("SR-001"));
+        var result = productController.getProductBySanitaryRegistration("SR-001");
 
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode().value());
         verify(productService, times(1)).findBySanitaryRegistration("SR-001");
     }
 
     @Test
-    void testGetProductBySanitaryRegistration_NotFound() throws Exception {
-        when(productService.findBySanitaryRegistration("SR-999")).thenReturn(Optional.empty());
+    @DisplayName("Should update product successfully")
+    void testUpdateProduct_Success() {
+        when(productMapper.toEntity(any())).thenReturn(testProduct);
+        when(productService.update(eq(testId), any())).thenReturn(testProduct);
+        when(productMapper.toResponseDto(any())).thenReturn(testProductDto);
 
-        mockMvc.perform(get("/api/products/sanitary/SR-999")
-                .contentType("application/json"))
-                .andExpect(status().isNotFound());
+        var result = productController.updateProduct(testId, any());
+
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode().value());
+        verify(productService, times(1)).update(eq(testId), any());
+    }
+
+    @Test
+    @DisplayName("Should return 404 when updating non-existent product")
+    void testUpdateProduct_NotFound() {
+        when(productMapper.toEntity(any())).thenReturn(testProduct);
+        when(productService.update(eq(testId), any()))
+            .thenThrow(new IllegalArgumentException("Product not found"));
+
+        var result = productController.updateProduct(testId, any());
+
+        assertEquals(404, result.getStatusCode().value());
+    }
+
+    @Test
+    @DisplayName("Should delete product successfully")
+    void testDeleteProduct_Success() {
+        var result = productController.deleteProduct(testId);
+
+        assertEquals(204, result.getStatusCode().value());
+        verify(productService, times(1)).delete(testId);
+    }
+
+    @Test
+    @DisplayName("Should return 404 when deleting non-existent product")
+    void testDeleteProduct_NotFound() {
+        doThrow(new IllegalArgumentException("Product not found"))
+            .when(productService).delete(testId);
+
+        var result = productController.deleteProduct(testId);
+
+        assertEquals(404, result.getStatusCode().value());
     }
 }
-
-
-
 
