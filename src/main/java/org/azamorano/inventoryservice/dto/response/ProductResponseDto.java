@@ -20,6 +20,7 @@ public class ProductResponseDto {
     private Boolean prescriptionRequired;
     private Boolean controlledSubstance;
     private UUID laboratoryId;
+    private String laboratory;
     private UUID brandId;
     private String sanitaryRegistration;
     private Integer reorderLevel;

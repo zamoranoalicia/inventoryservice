@@ -28,6 +28,9 @@ public class ProductRequestDto {
     @NotNull(message = "Category cannot be null")
     private String category;
 
+    @NotNull(message = "Laboratory cannot be null")
+    private String laboratory;
+
     @NotNull(message = "Prescription required flag cannot be null")
     private Boolean prescriptionRequired;
 

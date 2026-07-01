@@ -29,4 +29,8 @@ public class LaboratoryService {
 
         return existingLaboratory.get();
     }
+
+    public Laboratory getLaboratoryByName(String name) {
+        return laboratoryRepository.getLaboratoriesByName(name).orElse(null);
+    }
 }

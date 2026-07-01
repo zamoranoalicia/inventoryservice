@@ -30,6 +30,9 @@ class ProductServiceTest {
     @Mock
     private LaboratoryService laboratoryService;
 
+    @Mock
+    private ProductCategoryService productCategoryService;
+
     private ProductService productService;
 
     private Product testProduct;
@@ -37,7 +40,7 @@ class ProductServiceTest {
 
     @BeforeEach
     void setUp() {
-        productService = new ProductService(productRepository, brandService, laboratoryService);
+        productService = new ProductService(productRepository, brandService, laboratoryService, productCategoryService);
         testId = UUID.randomUUID();
         testProduct = new Product();
         testProduct.setId(testId);

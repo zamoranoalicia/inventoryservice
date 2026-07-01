@@ -40,5 +40,12 @@ public class LaboratoryMapper {
                 .map(this::toResponseDto)
                 .collect(Collectors.toList());
     }
+
+    public Laboratory toEntity(String laboratoryName) {
+        if (laboratoryName == null) {
+            return null;
+        }
+        return Laboratory.builder().name(laboratoryName).build();
+    }
 }
 

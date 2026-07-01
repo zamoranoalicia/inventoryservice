@@ -1,8 +1,8 @@
 package org.azamorano.inventoryservice.service;
 
-import org.azamorano.inventoryservice.entity.Brand;
+import org.azamorano.inventoryservice.entity.Laboratory;
 import org.azamorano.inventoryservice.entity.Product;
-import org.azamorano.inventoryservice.repository.BrandRepository;
+import org.azamorano.inventoryservice.entity.ProductCategory;
 import org.azamorano.inventoryservice.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static java.util.Optional.ofNullable;
-
 @Service
 @Transactional
 public class ProductService {
@@ -20,25 +18,41 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final BrandService brandService;
     private final LaboratoryService laboratoryService;
+    private final ProductCategoryService productCategoryService;
 
 
-    public ProductService(ProductRepository productRepository, BrandService brandService, LaboratoryService laboratoryService) {
+    public ProductService(ProductRepository productRepository, BrandService brandService,
+                          LaboratoryService laboratoryService, ProductCategoryService productCategoryService) {
         this.productRepository = productRepository;
         this.brandService = brandService;
         this.laboratoryService = laboratoryService;
+        this.productCategoryService = productCategoryService;
     }
 
     public Product create(Product product) {
         validateProduct(product);
-        
+        ProductCategory category = productCategoryService.
+                getProductCategoryByName(product.getProductCategory().getName());
+
+        if (category == null) {
+            throw new IllegalArgumentException("Product category does not exist");
+        } else {
+            product.setProductCategory(category);
+        }
+
         // Brand and Laboratory are optional
         if (product.getBrand() != null) {
             product.setBrand(brandService.saveBrand(product.getBrand()));
         }
         if (product.getLaboratory() != null) {
-            product.setLaboratory(laboratoryService.saveLaboratory(product.getLaboratory()));
+            Laboratory existingLaboratory = laboratoryService.getLaboratoryByName(product.getLaboratory().getName());
+
+            if (existingLaboratory == null) {
+                throw new IllegalArgumentException("Laboratory does not exist");
+            }
+            product.setLaboratory(existingLaboratory);
         }
-        
+
         return productRepository.save(product);
     }
 
@@ -70,14 +84,12 @@ public class ProductService {
         if (productDetails.getProductDescription() != null) {
             product.setProductDescription(productDetails.getProductDescription());
         }
-        if (productDetails.getCategory() != null) {
-            product.setCategory(productDetails.getCategory());
+        if (productDetails.getProductCategory() != null) {
+            ProductCategory existingCategory = productCategoryService.getProductCategoryByName(productDetails.getProductCategory().getName());
+            product.setProductCategory(existingCategory);
         }
         product.setPrescriptionRequired(productDetails.isPrescriptionRequired());
         product.setControlledSubstance(productDetails.isControlledSubstance());
-        if (productDetails.getLaboratory() != null) {
-            product.setLaboratory(productDetails.getLaboratory());
-        }
         if (productDetails.getBrand() != null) {
             product.setBrand(productDetails.getBrand());
         }
@@ -86,6 +98,15 @@ public class ProductService {
         }
         if (productDetails.getReorderLevel() > 0) {
             product.setReorderLevel(productDetails.getReorderLevel());
+        }
+
+        if(productDetails.getLaboratory() != null) {
+            Laboratory existingLaboratory = laboratoryService.getLaboratoryByName(productDetails.getLaboratory().getName());
+
+            if (existingLaboratory == null) {
+                throw new IllegalArgumentException("Laboratory does not exist");
+            }
+            product.setLaboratory(existingLaboratory);
         }
 
         validateProduct(product);
