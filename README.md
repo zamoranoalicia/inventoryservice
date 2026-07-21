@@ -118,7 +118,7 @@ The application automatically creates all tables on first run with `ddl-auto=cre
 
 ### Flyway Migrations
 
-Database migrations are managed by Flyway in `src/main/resources/db/migration/`. The initial schema `V1__Initial_Schema.sql` creates all tables with relationships and constraints.
+Database migrations are managed by Flyway in `src/main/resources/db/migration/`. The initial schema `V1__initial_schema.sql` creates all tables with relationships and constraints.
 
 ## Running the Application
 
