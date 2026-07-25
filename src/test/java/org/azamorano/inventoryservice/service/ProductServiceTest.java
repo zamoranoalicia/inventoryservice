@@ -1,6 +1,8 @@
 package org.azamorano.inventoryservice.service;
 
 import org.azamorano.inventoryservice.entity.Product;
+import org.azamorano.inventoryservice.entity.ProductCategory;
+import org.azamorano.inventoryservice.repository.ProductCategoryRepository;
 import org.azamorano.inventoryservice.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,9 +35,13 @@ class ProductServiceTest {
     @Mock
     private ProductCategoryService productCategoryService;
 
+    @Mock
+    private ProductCategoryRepository productCategoryRepository;
+
     private ProductService productService;
 
     private Product testProduct;
+
     private UUID testId;
 
     @BeforeEach
@@ -52,11 +58,21 @@ class ProductServiceTest {
         testProduct.setControlledSubstance(false);
         testProduct.setSanitaryRegistration("SR-001");
         testProduct.setReorderLevel(10);
+        testProduct.setProductCategory(ProductCategory
+                .builder()
+                .categoryId(UUID.randomUUID())
+                .name("Analgésicos")
+                .description("Medicamentos para el alivio del dolor")
+                .createdAt(java.time.ZonedDateTime.now())
+                .updatedAt(java.time.ZonedDateTime.now())
+                .build());
     }
 
     @Test
     void testCreateProduct_Success() {
         when(productRepository.save(any(Product.class))).thenReturn(testProduct);
+        when(productCategoryService.getProductCategoryByName(testProduct.getProductCategory().getName()))
+                .thenReturn(testProduct.getProductCategory());
 
         Product createdProduct = productService.create(testProduct);
 
