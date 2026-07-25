@@ -14,18 +14,18 @@ jobs:
     steps:
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '25'
 
       - name: Build and test
         run: |
-          chmod +x mvnw
-          ./mvnw clean verify
+          chmod +x gradlew
+          ./gradlew clean build
 
       - name: Deploy to Hetzner
         uses: appleboy/ssh-action@v1.2.0
