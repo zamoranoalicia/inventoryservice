@@ -14,15 +14,28 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
         with:
-          distribution: temurin
-          java-version: '25'
-          cache: gradle
+          ssh-private-key: ${{ secrets.DEPLOY_SERVER_SSH_KEY }}
 
-      - name: Make Gradle executable
-        run: chmod +x ./gradlew
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.DEPLOY_SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Run tests
-        run: ./gradlew test
+      - name: Build JAR  file
+        run: ./gradlew build
+
+      - name: Deploy JAR to server
+        run: |
+          JAR_NAME="InventoryService-0.0.1-SNAPSHOT.jar"
+          LOCAL_JAR_PATH="build/libs/$JAR_NAME"
+          REMOTE_SERVER="admin@${{ secrets.DEPLOY_SERVER_HOST }}"
+          REMOTE_JAR_DIR="/opt/farmaactiva-backend"
+          
+          rsync -avz -e "ssh" $LOCAL_JAR_PATH $REMOTE_SERVER:$REMOTE_JAR_DIR/$JAR_NAME
+          
+          ssh $REMOTE_SERVER << 'EOF'
+            mv $REMOTE_JAR_DIR/$JAR_NAME $REMOTE_JAR_DIR/InventoryService.jar
+            sudo systemctl restart farmaactiva.service
+          EOF
